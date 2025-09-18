@@ -181,7 +181,7 @@
         }
       });
 
-      document.getElementById("result").innerText = "ต้นทุนรวม: " + totalCogit add t.toFixed(2) + " บาท";
+      document.getElementById("result").innerText = "ต้นทุนรวม: " + totalCost.toFixed(2) + " บาท";
 
       const pieces = parseFloat(document.getElementById("pieces").value);
       if (!isNaN(pieces) && pieces > 0) {
