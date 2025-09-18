@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>โปรแกรมคำนวณต้นทุนวัตถุดิบ</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 40px 0;
+    }
+    .card {
+      background: #fff;
+      padding: 40px 50px;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      width: 1100px;
+      max-width: 95%;
+    }
+    h2 {
+      margin-bottom: 30px;
+      color: #195901;
+      text-align: center;
+      font-size: 32px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 14px;
+      text-align: center;
+      font-size: 18px;
+    }
+    th {
+      background: #e8f5e9;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    button {
+      padding: 14px 24px;
+      font-size: 20px;
+      margin: 10px 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      background: #195901;
+      color: white;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #2e7d32;
+      transform: translateY(-2px);
+    }
+    .result {
+      margin-top: 30px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+    .btn-box {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .summary {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9fbe7;
+      border-radius: 12px;
+      border: 1px solid #dce775;
+      text-align: center;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>โปรแกรมคำนวณต้นทุนวัตถุดิบ</h2>
+
+    <table id="ingredientTable">
+      <thead>
+        <tr>
+          <th>ลำดับ</th>
+          <th>ชื่อวัตถุดิบ</th>
+          <th>น้ำหนักทั้งหมด (กรัม)</th>
+          <th>ราคาซื้อ (บาท)</th>
+          <th>ใช้ไป (กรัม)</th>
+          <th>ต้นทุนที่ใช้ (บาท)</th>
+          <th>ลบ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><input type="text" class="name" placeholder="เช่น แป้งสาลี"></td>
+          <td><input type="number" class="weight"></td>
+          <td><input type="number" class="price"></td>
+          <td><input type="number" class="used"></td>
+          <td class="cost">-</td>
+          <td><button onclick="removeRow(this)">ลบ</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="btn-box">
+      <button onclick="addRow()">➕ เพิ่มวัตถุดิบ</button>
+      <button onclick="calculate()">📊 คำนวณต้นทุนรวม</button>
+    </div>
+
+    <div class="summary">
+      <label>จำนวนชิ้นที่ผลิตได้: 
+        <input type="number" id="pieces" placeholder="ใส่จำนวนชิ้น" oninput="calculate()">
+      </label>
+    </div>
+
+    <div class="result" id="result">ต้นทุนรวม: 0.00 บาท</div>
+    <div class="result" id="perPiece">ต้นทุนต่อชิ้น: 0.00 บาท</div>
+  </div>
+
+  <script>
+    function addRow() {
+      const table = document.getElementById("ingredientTable").getElementsByTagName("tbody")[0];
+      const rowCount = table.rows.length;
+      const row = table.insertRow();
+      row.innerHTML = `
+        <td>${rowCount + 1}</td>
+        <td><input type="text" class="name" placeholder="ชื่อวัตถุดิบ"></td>
+        <td><input type="number" class="weight"></td>
+        <td><input type="number" class="price"></td>
+        <td><input type="number" class="used"></td>
+        <td class="cost">-</td>
+        <td><button onclick="removeRow(this)">ลบ</button></td>
+      `;
+    }
+
+    function removeRow(btn) {
+      const row = btn.parentNode.parentNode;
+      row.parentNode.removeChild(row);
+      updateRowNumbers();
+      calculate();
+    }
+
+    function updateRowNumbers() {
+      const rows = document.querySelectorAll("#ingredientTable tbody tr");
+      rows.forEach((row, index) => {
+        row.cells[0].innerText = index + 1;
+      });
+    }
+
+    function calculate() {
+      const rows = document.querySelectorAll("#ingredientTable tbody tr");
+      let totalCost = 0;
+
+      rows.forEach(row => {
+        const weight = parseFloat(row.querySelector(".weight").value);
+        const price  = parseFloat(row.querySelector(".price").value);
+        const used   = parseFloat(row.querySelector(".used").value);
+        const costCell = row.querySelector(".cost");
+
+        if(!isNaN(weight) && weight > 0 && !isNaN(price) && !isNaN(used)) {
+          const cost = (price / weight) * used;
+          costCell.innerText = cost.toFixed(2);
+          totalCost += cost;
+        } else {
+          costCell.innerText = "-";
+        }
+      });
+
+      document.getElementById("result").innerText = "ต้นทุนรวม: " + totalCogit add t.toFixed(2) + " บาท";
+
+      const pieces = parseFloat(document.getElementById("pieces").value);
+      if (!isNaN(pieces) && pieces > 0) {
+        const perPiece = totalCost / pieces;
+        document.getElementById("perPiece").innerText = "ต้นทุนต่อชิ้น: " + perPiece.toFixed(2) + " บาท";
+      } else {
+        document.getElementById("perPiece").innerText = "ต้นทุนต่อชิ้น: -";
+      }
+    }
+  </script>
+</body>
+</html>
